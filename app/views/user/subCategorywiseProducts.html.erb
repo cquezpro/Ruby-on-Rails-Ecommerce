@@ -1,0 +1,135 @@
+<script type="text/javascript">
+
+	
+	getSubcategorywiseProducts();
+	
+	function getSubcategorywiseProducts()
+	{
+		var subcategory_id = sessionStorage.subcategory_id;
+
+		$.ajax({
+				type: "post",
+				dataType: 'json',
+				data: {"subcategory_id": subcategory_id},
+				url: "<%= url_for(:action => 'subCategorywiseProducts') %>",
+				success: function(result)
+				{
+					var data = JSON.stringify(result);
+              		var content = JSON.parse(data);
+
+              		$('#blockViewProducts').empty();
+              		if (content.message)
+              		{
+                    	$('#blockViewProducts').empty().append("<center>");
+              			$('#blockViewProducts').append(content.message);
+                    	$('#blockViewProducts').append("</center>");
+              		}
+              		else
+              		{
+              			var value1 = "";
+              			var value2 = "";
+                  		$('#blockViewProducts').empty();
+                  		for(var i=0;i<content.length;++i)
+                  		{
+                  			var pid = content[i].id
+                  			value1 = "<li class='span3'><div class='thumbnail'>"+
+              					"<a href='/user/show/"+pid+"'>"+
+              					"<img src='/images/"+content[i].product_image+"' style='width: 160px; height: 160px;' alt=''/></a>"+"<div class='caption'>"+
+              					"<h5>"+content[i].product_name+"</h5>"+
+              					"<p>"+content[i].product_desc+"</p>"+
+              					"<h4 style='text-align:center'><a class='btn' href='/user/show/"+pid+"'>"+
+              					"<i class='icon-zoom-in'></i></a>"+
+              					"<a class='btn' href='/purchase_product/createPurchaseDetails/"+pid+
+              					"'>Add to <i class='icon-shopping-cart'></i></a>"+
+              					"<a class='btn btn-primary' href='#'>&euro;"+
+              					content[i].price+".00</a></h4>"+
+              					"</div></div></li>";
+						
+                      		$('#blockViewProducts').append(value1);
+                      		
+
+                      		value2 = "<div class='row'><div class='span2'>"+
+								 "<img src='/images/"+content[i].product_image+"' style='width: 160px; height: 160px;' alt=''/></div>"+
+								 "<div class='span4'>"+
+								 "<h3>New | Available</h3>"+
+								 "<hr class='soft'/>"+
+								 "<h5>"+content[i].product_name+"</h5>"+
+								 "<p>"+content[i].product_desc+"</p>"+
+								 "<a class='btn btn-small pull-right' href='/user/show/"+pid+"'>View Details</a>"+
+								 "<br class='clr'/></div>"+
+								 "<div class='span3 alignR'><form class='form-horizontal qtyFrm'>"+"<h3> $"+
+								 content[i].price+".00</h3>"+
+								 "<label class='checkbox'>"+
+								 "<input type='checkbox'>  Adds product to compair</label><br/>"+"<a href='/user/show/"+pid+"' class='btn btn-large btn-primary'> Add to <i class=' icon-shopping-cart'></i></a>"+"<a href='/user/show/"+pid+"' class='btn btn-large'><i class='icon-zoom-in'></i></a>"+
+								 "</form></div></div><hr class='soft'/>";
+
+							$('#listView').append(value2);
+                                              
+                  		}
+                  		$('#pathProductname').empty().append(sessionStorage.pname);
+                      	$('#displayProductname').empty().append(sessionStorage.pname);
+              		}	
+				}
+		});
+    }	
+
+</script>
+
+
+ <ul class="breadcrumb">
+		<li><a href="/user/index">Home</a> <span class="divider">/</span></li>
+		<li class="active" id="pathProductname"></li>
+    </ul>
+	<h3 id="displayProductname"> Product Name :  <small class="pull-right"> 40 products are available </small></h3><hr class="soft"/>
+	<div id="product"> </div>
+
+	<p>
+		Nowadays the lingerie industry is one of the most successful business spheres.We always stay in touch with the latest fashion tendencies - that is why our goods are so popular and we have a great number of faithful customers all over the country.
+	</p>
+	<hr class="soft"/>
+	<form class="form-horizontal span6">
+		<div class="control-group">
+		  <label class="control-label alignL">Sort By </label>
+			<select id="searchProductcriteria" name="searchProductcriteria" onchange="getProductCriteria();">
+
+              <option value="1" selected>Product name A - Z</option>
+              <option value="2">Product name Z - A</option>
+              <option value="3">Product Stoke</option>
+              <option value="4">Price Lowest first</option>
+
+            </select>
+		</div>
+	  </form>
+	  
+<div id="myTab" class="pull-right">
+	<a href="#listView" data-toggle="tab"><span class="btn btn-large"><i class="icon-list"></i></span></a>
+ 	<a href="#blockView" data-toggle="tab"><span class="btn btn-large btn-primary"><i class="icon-th-large"></i></span></a>
+</div>
+<br class="clr"/>
+<div class="tab-content">
+	
+	<div class="tab-pane" id="listView"> </div>
+
+	<div class="tab-pane  active" id="blockView">
+		<ul class="thumbnails" id="blockViewProducts"> </ul>
+		<hr class="soft"/>
+	</div>
+</div>
+
+	<a href="compair.html" class="btn btn-large pull-right">Compair Product</a>
+	<div class="pagination">
+			<ul>
+			<li><a href="#">&lsaquo;</a></li>
+			<li><a href="#">1</a></li>
+			<li><a href="#">2</a></li>
+			<li><a href="#">3</a></li>
+			<li><a href="#">4</a></li>
+			<li><a href="#">...</a></li>
+			<li><a href="#">&rsaquo;</a></li>
+			</ul>
+			</div>
+			<br class="clr"/>
+</div>
+</div>
+</div>
+</div>

@@ -1,0 +1,53 @@
+
+<script>
+
+	$(document).ready(function()
+	{
+		$("form#upload").submit(function()
+		{
+			var file = document.getElementById('imageupload').value;
+			var formData = new FormData($(this)[0]);
+
+			$.ajax({
+				url: "<%= url_for(:action => 'productImage') %>",
+				type: "post",
+				data: formData,
+				async: false,
+				success: function(result)
+				{
+					// alert("File uploaded....");
+					var data = JSON.stringify(result);
+	           		var content = JSON.parse(data);
+	           		if (content.message)
+	           		{
+	           			alert(content.message);	    
+	           			window.location.href = window.location.origin + "/products/index";
+	           		}
+	           		else if (content.notice)
+	           		{
+	           			alert(content.notice);
+	           		}
+
+				},
+				cache: false,
+				contentType: false,
+				processData: false
+
+			});
+			
+			
+		});
+	});
+
+
+</script>
+
+
+<div>
+	<form id="upload" method="post" enctype="multipart/form-data" action="">
+    	<label> Upload Product Image </label> <hr/>
+    	<input id="imageupload" type="file" name="imageupload" /> <hr/>
+    	<input type="hidden" id="pid" name="pid" value="<%= params[:id] %>" />
+    	<button>Upload</button>
+    </form>
+</div>

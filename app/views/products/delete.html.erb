@@ -1,0 +1,10 @@
+	
+	<%= link_to("<<Back to list", {:action => 'index'}) %>
+
+	<h2>Delete Product Details</h2> 
+
+	<%= form_tag({:action => 'destroy', :id => @product.id }) do %>
+		<p>Are you sure you want to permanently delete this user?</p> 
+		<p><%= @product.product_name %></p>
+		<%= submit_tag "Delete Product",class: "btn btn-danger" %>	
+	<% end %>

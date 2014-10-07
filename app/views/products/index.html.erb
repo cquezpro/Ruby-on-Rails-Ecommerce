@@ -1,0 +1,163 @@
+
+<input id="product_name" name="product_name" type="text" placeholder="Search Product" class="form-control">
+
+<h2>Products Details</h2>
+
+<script type="text/javascript">
+
+  getProducts();
+
+	function getProductStatus(pid){
+		var id = pid;
+		//alert(id);
+		$.ajax({
+           type: "post",
+           dataType: 'json',
+           data:  {"id": id},
+           url: "<%= url_for(:action => 'productStatus') %>",
+           success: function(result)
+           {   
+           		var data = JSON.stringify(result);
+              var content = JSON.parse(data);
+                //alert(content.sale_for);
+				      var a = content.sale_for;
+				      if (a == true){
+					         $('#productStatus'+pid).html("Yes");
+				      }
+				      else
+					       $('#productStatus'+pid).html("No");
+          }
+		});         
+
+	}
+
+	$(document).ready(function(){
+
+  		$('#product_name').change(function()
+  		{
+  			var product_name = $('#product_name').val();
+
+  			$.ajax({
+          		type: "post",
+          		dataType: 'json',
+          		data: {"product_name": product_name},
+          		url:"<%= url_for(:controller => 'user',:action => 'searchProduct') %>",
+          		success: function(result)
+          		{   
+          			var data = JSON.stringify(result);
+              		var content = JSON.parse(data);
+
+              		if (content.message)
+              		{
+              			$('#product').empty().append(content.message);
+              		}
+              		else 
+              		{
+              			$('#product').empty();
+              			var header = "<table class='table table-striped'><tr>"		   +"<th width='10%''>Product Name</th>"+
+			                          "<th width='10%'>Price</th>" +
+			                          "<th width='10%'>Quantity</th>" +  
+			                          "<th width='10%'>Description</th>" + 
+			                          "<th width='10%'>Product Image</th>" +
+			                          "<th width='10%'>Product for sell</th>"+ "<th width='30%'>Actions</th></tr>";
+		                              
+			            $('#product').append(header);
+
+              			var value = "";
+                  		
+                  		for(var i=0;i<content.length;++i)
+                  		{
+                  			var sale_for = content[i].sale_for;
+
+                  			if(sale_for == true)
+                  			{
+                  				sale_for = "Yes";
+                  			}
+                  			else
+                  			{
+                  				sale_for = "No";
+                  			}
+                  			var id = content[i].id;
+                  			value = "<tr> <td width='10%'>"+
+                                content[i].product_name + "</td> <td width='10%'>"+ content[i].price + "</td> <td width='10%'>" + content[i].qty + "</td> <td width='10%'>" +
+                                content[i].product_desc + "</td>" + "<td width='10%'> <img width='50' height='50' src='/images/" +
+                                content[i].product_image+ "'/> </td>"+
+                                "<td width='10%'> <a id='productStatus"+id+ "' onclick='getProductStatus(" + id + ");'>" + sale_for + "</a> </td>" +
+                                "<td width='30%'> <a href='/products/show/" + id +"'>Show</a>| "+
+                                "<a href='/products/edit/" + id +"'>Edit</a> | " +
+                                "<a href='/products/delete/" + id +"'>Delete</a></td></tr></table>";
+                          
+                      		$('#product').append(value);
+                  		}
+                  	}
+          		}
+          	});
+  		});
+  	});
+
+	function getProducts()
+  {
+
+		var role = "<%= session[:role] %>";
+    //alert("Role =>",role);
+		$.ajax({
+          		type: "post",
+          		dataType: 'json',
+          		data: {"role": role},
+          		url:"<%= url_for(:action => 'list') %>",
+          		success: function(result)
+          		{   
+          			var data = JSON.stringify(result);
+              	var content = JSON.parse(data);
+                $('#product').empty();
+                    var header = "<table class='table table-striped'><tr>"       +"<th width='10%''>Product Name</th>"+
+                                "<th width='10%'>Price</th>" +
+                                "<th width='10%'>Quantity</th>" +  
+                                "<th width='10%'>Description</th>" + 
+                                "<th width='10%'>Product Image</th>" +
+                                "<th width='10%'>Product for sell</th>"+ "<th width='30%'>Actions</th></tr>";
+                    $('#product').append(header);
+                    var value = "";
+                      
+                    for(var i=0;i<content.length;++i)
+                    {
+                        var sale_for = content[i].sale_for;
+                        
+                        if(sale_for == true)
+                        {
+                          sale_for = "Yes";
+                        }
+                        else
+                        {
+                          sale_for = "No";
+                        }
+
+                        var id = content[i].id;
+                        //alert("ID in getall => " + id);
+                        
+                        value = "<tr> <td width='10%'>"+
+                                content[i].product_name + "</td> <td width='10%'>"+ content[i].price + "</td> <td width='10%'>" + content[i].qty + "</td> <td width='10%'>" +
+                                content[i].product_desc + "</td>" + "<td width='10%'> <img width='50' height='50' src='/images/" +
+                                content[i].product_image+ "'/> </td>"+
+                                "<td width='10%'> <a id='productStatus"+id+ "' onclick='getProductStatus(" + id + ");'>" + sale_for + "</a> </td>" +
+                                "<td width='30%'> <a href='/products/show/" + id +"'>Show</a>| "+
+                                "<a href='/products/edit/" + id +"'>Edit</a> | " +
+                                "<a href='/products/delete/" + id +"'>Delete</a> | " +
+                                "<a href='/products/uploadImage/"+ id + "' >UploadImage</a>"+"</td></tr></table>";
+                          
+                          $('#product').append(value);
+                      }
+                    
+              }
+                                           		
+              
+        });
+	}
+
+</script>
+
+<div> <%= link_to("Add New Product", {:action => 'new'}) %> </div>
+
+<div class="row text-center" id = "product">
+                        
+</div>

@@ -1,0 +1,24 @@
+<%= link_to("<<Back to List", {:action => 'index'}) %>
+
+
+	<h2>A Coupon Details</h2>
+
+	<table class="table table-striped">
+		<tr>
+			<th>Coupon code</th> 
+			<td><%= @coupon.coupon_code %></td>
+		</tr>
+		<tr>
+			<th>Coupon Discount</th>
+			<td><%= @coupon.coupon_discount %></td> 
+		</tr>
+		<tr>
+			<th>Product Name</th>
+			<% pid = @coupon.product_id %>
+			<% @product = Product.where("id = #{pid}") %>
+			<% @product.each do |p| %>
+				<td><%= p.product_name %></td> 
+			<% end %>
+		</tr>
+				
+	</table>

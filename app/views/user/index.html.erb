@@ -1,0 +1,121 @@
+
+<script>
+
+  getProducts("All");
+  
+
+    $(document).ready(function(){
+
+        "<% if session[:userid] %>"  
+
+              $('#headerLogin').empty().append("<a href='#' role='button'"+ 
+          "data-toggle='modal' style='padding-right:0' "+
+          "><span id='btnlogin'"+" class='btn btn-large btn-success'>Logout</span></a>");
+
+        $('#btnlogin').on("click",function(){
+            $('#btnlogin').empty().append("Login");
+            window.location.href = window.location.origin + "/user_login/logout";
+        });
+
+      "<% end %>"  
+      
+    });
+
+	function getProducts(cid)
+  {
+      var mydata;
+      mydata = {"category": cid};
+      //alert(cid);
+      $('#product_name').val("");
+
+      $.ajax({
+           type: "post",
+           dataType: 'json',
+           data:  mydata,
+           url: "<%= url_for(:action => 'list_products') %>",
+           success: function(result)
+           {   
+               
+               var data = JSON.stringify(result);
+               var content = JSON.parse(data);
+               
+               var value1 = "";
+               var value2 = "";
+                $('#productSlide').empty();
+                $('#productList').empty();
+
+                for(var i=0;i<content.length;++i)
+                {
+                      var pid = content[i].id;
+
+                      value2 += "<li class='span3'> <div class='thumbnail'>"+
+                                "<a style='width: 160px; height: 160px;' href='/user/show/" + pid + "'><img src='/images/" + content[i].product_image +"' alt=''></a><div class='caption'>"+ "<h5>" + content[i].product_name +"</h5> <p>"+ 
+                                "Lorem Ipsum is simply dummy text.</p> " + "<h4 style='text-align:center'><a class='btn' href='product_details.html'> <i class='icon-zoom-"+ "in'></i></a> <a class='btn' href='/purchase_product/createPurchaseDetails/"+pid+"'>Add to <i class='icon-shopping-cart'></i></a> <a class='btn btn-primary' href='#'> Rs. " + content[i].price +"</a></h4></div></div></li>";
+                      
+                  }
+                  $('#productList').append(value2);
+                                  
+               var k = 0;     
+               var c = 4;
+               var a = 0;
+               var l = content.length;
+               //alert("l=" + l);                
+               for(var i=0;i<(content.length)/4;++i)
+               { 
+                  value1 += "<div class='item'><ul class='thumbnails'>"; 
+                    for(var j=0;j<c;j++)
+                    {
+                        
+                          value1 += "<li class='span3'>"+
+                                "<div class='thumbnail'><i class='tag'></i>"+
+                                "<a href='/user/show/"+content[k].id+"'><img src='/images/"+content[k].product_image+"' /></a>" + 
+                                "<div class='caption'> <h5>"+content[k].product_name+"</h5>"+
+                                "<h4><a class='btn' href='/user/show/"+     content[k].id+"'>"+"VIEW</a> <span class='pull-right'>  Rs."+content[k].price+"</span></h4>"+
+                                "</div></div></li>";
+                           
+                          k=k+1;                                                   
+                    }  
+                      a = l - c;
+                      if (a > 4)
+                      {
+                          c = 4;
+                          l = l - c;
+                      }
+                      else
+                          c = a;
+                       
+                      value1 += "</ul></div>"; 
+                      
+                  }
+                  $('#productSlide').append(value1);  
+                                                                   
+              } 
+      });
+
+  }
+    
+</script>
+
+<div class="well well-small">
+      <h4>Featured Products <small class="pull-right">200+ featured products</small></h4>
+      <div class="row-fluid">
+        <div id="featured" class="carousel slide">
+        <div class="carousel-inner" id = "productSlide">
+          
+        </div>
+        <a class="left carousel-control" data-slide="prev" href="#featured"> </a>
+        <a class="right carousel-control" data-slide="next" href="#featured"></a>
+        </div>
+      </div>
+  </div>
+
+  <h4>Latest Products </h4>
+  <ul class="thumbnails" id = "productList">
+  </ul>
+
+<% if cookies[:pid].blank? == false %>
+  <h2> 
+      <%= link_to("Your visited Products",{:action => 'visited_products'}) %>
+  </h2>
+<% end %>
+

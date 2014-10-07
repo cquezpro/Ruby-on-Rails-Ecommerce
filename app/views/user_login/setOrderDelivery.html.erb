@@ -1,0 +1,106 @@
+
+<% if !flash[:message].blank? %>
+    <div class="notice">
+        <%= flash[:message] %>
+    </div>
+<% end %>
+
+<script>
+
+    $(document).ready(function(){
+      
+        $('#headerLogin').empty().append("<a href='#' role='button'"+ 
+        "data-toggle='modal' style='padding-right:0' "+
+        "><span id='btnlogin'"+" class='btn btn-large btn-success'>Logout</span></a>");
+
+        $('#btnlogin').on("click",function(){
+            $('#btnlogin').empty().append("Login");
+            window.location.href = window.location.origin + "/user_login/logout";
+        });
+    });
+
+	function setOrder()
+	{
+			
+			var cart_product = "<%= cookies[:cartpid] %>"
+      var cart_qty = "<%= cookies[:cartdata] %>"
+      
+			$.ajax({
+
+				      type: "post",
+           		dataType: 'json',
+           		data: {"cart_product": cart_product,"cart_qty": cart_qty},
+           		url: "<%= url_for(:controller => 'purchase_product',:action => 'list_cart_details') %>",
+           		success: function(result)
+           		{   
+           			var data = JSON.stringify(result);
+           			var content = JSON.parse(data);
+           			var total_price = 0
+           			var total_discount = 0
+           			var total_tax = 0
+                var pid = 0
+                var qty = 0
+                var price = 0
+           			var product_order_details = "";
+
+           			for(var i=0;i<content.length;i++)
+              	{
+              			pid = content[i].product_id
+              			qty = content[i].qty
+              			price = content[i].price
+              			total_price = content[i].totalAmount
+              			total_discount = content[i].totalDiscount
+              			total_tax = content[i].totalTax
+              			              			
+              	}
+              		var net_amount = total_price - total_discount + total_tax;
+
+              		$('#net_amount').attr('value',net_amount);
+
+              		setCartData(total_price,total_discount,total_tax,net_amount);
+
+           		}
+      });
+	}
+
+		
+		function setCartData(total_price,total_discount,total_tax,net_amount)
+		{
+						
+			var totalPrice = total_price;
+			var totalDiscount = total_discount;
+			var totalTax = total_tax;
+			var netTotal = net_amount;
+			var user_email = "<%= session[:email_id] %>"
+			var user_id = "<%= session[:userid] %>"
+			var deliveryID = "<%= session[:orderDeliveryID] %>"
+      var cart_qty = "<%= cookies[:cartdata] %>"
+
+			$.ajax({
+				      type: "post",
+           		dataType: 'json',
+           		data: {"user_email": user_email,"user_id": user_id,"totalPrice": totalPrice,"totalDiscount": totalDiscount,"totalTax": totalTax,"netTotal": netTotal,"deliveryID": deliveryID,"cart_qty": cart_qty},
+           		url: "<%= url_for(:action => 'placeOrder') %>",
+           		success: function(result)
+           		{ 
+           			var data = JSON.stringify(result);
+           			var content = JSON.parse(data);
+           			if (content.message)
+                {
+           				alert(content.message);
+                  window.location.href = window.location.origin + "/user_login/deleteCookies?uid="+user_id;
+                }
+           			else if (content.notice)
+           				alert(content.notice);
+
+           		}
+      });
+		}
+
+</script>
+
+<div id="btnconfirm" class='control-group'>
+		<button type='button' class='btn'
+		onclick='setOrder();' style="border-left-width: 1px; margin-left: 27px;">Confirm Order</button>
+
+</div>

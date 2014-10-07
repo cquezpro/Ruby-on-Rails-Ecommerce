@@ -1,0 +1,33 @@
+
+<%= will_paginate @registers %>
+
+
+	<h2>Registerd Users Details</h2>
+
+	<%= link_to("Add New User", {:action => 'new'}) %>
+
+	<table class="table table-striped">
+		<tr>
+			<th width="10%">First Name</th> 
+			<th width="10%">Last Name</th> 
+			<th width="10%">Username</th>
+			<th width="10%">Email ID</th>  
+			<th width="30%">Actions</th> 
+		</tr>
+
+		<% @registers.each do |register| %>
+		<tr>
+			<td width="10%"> <%= register.first_name %> </td>
+			<td width="10%"> <%= register.last_name %> </td>
+			<td width="10%"> <%= register.username %> </td>
+			<td width="10%"> <%= register.email %> </td>
+			<td width="30%">
+				<%= link_to("Show", {:action => 'show', :id => register.id}) %>
+				<%= link_to("Edit", {:action => 'edit', :id => register.id})  %>
+				<%= link_to("Delete", {:action => 'delete', :id => register.id}) %>
+			</td>
+		</tr>
+		<% end %>
+	</table>
+
+<%= will_paginate @registers %>	

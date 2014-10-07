@@ -1,0 +1,8 @@
+
+	<%= link_to("<<Back to list", {:action => 'index'}) %>
+	<h2>Update User Details</h2>
+
+	<%= form_for(:register, :url => {:action => 'update', :id => @register.id}) do |f| %>
+		<%= render(:partial => "form", :locals => {:f => f}) %>
+		<%= submit_tag "Update User", class: "btn btn-default" %>
+	<% end %>

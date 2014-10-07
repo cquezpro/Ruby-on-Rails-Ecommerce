@@ -1,0 +1,26 @@
+	
+	<%= link_to("<<Back to List", {:action => 'index'}) %>
+
+
+	<h2>A User Details</h2>
+
+	<table class="table table-striped">
+		<tr>
+			<th>First Name</th> 
+			<td><%= @register.first_name %></td>
+		</tr>
+		<tr>
+			<th>Last Name</th>
+			<td><%= @register.last_name %></td> 
+		</tr>
+		<tr>
+			<th>Username</th>
+			<td><%= @register.username %></td> 
+		</tr>
+		<tr>
+			<th>Email ID</th>
+			<td><%= @register.email %></td> 
+		</tr>
+		
+	</table>
+

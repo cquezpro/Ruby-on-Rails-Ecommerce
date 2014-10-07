@@ -1,0 +1,304 @@
+
+<script  type="text/javascript">
+
+	getCartdetails();
+
+		$(document).ready(function()
+		{
+			"<% if session[:userid] %>"
+				$('#btnsignin').attr('disabled','disabled');
+
+				$('#btnlogin').on("click",function(){
+					$('#btnlogin').empty().append("Login");
+					window.location.href = window.location.origin + "/user_login/logout?pageSummary=1";
+				});
+
+			"<% end %>"
+			    					
+		});
+	
+	var grandTotal = 0;
+	
+	function getCartdetails()
+	{
+		var cart_product = "<%= cookies[:cartpid] %>"
+		var cart_qty = "<%= cookies[:cartdata] %>"
+
+		$.ajax({
+				type: "post",
+           		dataType: 'json',
+           		data: {"cart_product": cart_product,"cart_qty": cart_qty},
+           		url: "<%= url_for(:action => 'list_cart_details') %>",
+           		success: function(result)
+           		{   
+           			var data = JSON.stringify(result);
+           			var content = JSON.parse(data);
+
+              		$('#cartData').empty();
+              		var value1 = "";
+              		var value2 = "";
+              		
+              		if (content.message)
+              		{
+              			$('#cartData').empty().append(content.message);
+              		}
+              		else
+              		{
+              			var total = 0;
+              			var id = 0;
+              			var totalAmount = 0;
+              			var totalDiscount = 0;
+              			var totalTax = 0;
+              			var netTotal = 0;
+              			var totalProducts = 0;
+
+              			for(var i=0;i<content.length;i++)
+              			{
+              				
+              				totalAmount = content[i].totalAmount
+              				totalDiscount = content[i].totalDiscount
+              				totalTax = content[i].totalTax
+              				totalProducts = content[i].totalProducts
+            				pid = content[i].product_id
+              				
+	              			value1 = "<tr><td><img width='60' alt=''"+
+	              						"src='/images/"+content[i].product_image+"'></td>"+"<td>"+content[i].product_name+"<br>"+content[i].product_desc+"</td>"+
+	              						"<td><div class='input-append'>"+
+	              						"<input id='appendedInputButtons-"+pid+"' class='span1' type='text' size='16' min='1'"+
+	              						"value='"+content[i].qty+
+	              						"' style='max-width:34px'>"+
+	              						"<a id='btnminus-"+pid+
+	"' class='btn'  href='/purchase_product/createPurchaseDetails/"
+	              						+pid+"?opt=sub'>"+
+										"<i class='icon-minus'></i></a>"+
+										"<a id='btnplus-"+pid+
+	"' class='btn'  href='/purchase_product/createPurchaseDetails/"
+	              						+pid+"?opt=add'>"+
+										"<i class='icon-plus'></i></a>"+
+										"<a id='btndelete-"+pid+"' class='btn btn-danger'"+
+										"href='/purchase_product/deleteQuantity/"+pid+"'>"+
+										"<i class='icon-remove icon-white'>"+
+										"</i></a></div></td>"+
+										"<td>$"+content[i].price+"</td>"+
+										"<td id='discount-"+pid+"'>$"+content[i].product_dicount+"</td>"+
+										"<td id='tax-"+pid+"'>$"+content[i].product_tax+"</td>"+
+										"<td id='subTotal-"+pid+"'>$"+content[i].product_amount+"</td></tr>";
+										         				
+							$('#cartData').append(value1);
+						}
+
+						netTotal = totalAmount - totalDiscount + totalTax;
+
+						value2 = "<tr><td style='text-align:right'"+ 
+									"colspan='6'>Total Price: </td>"+
+									"<td id='totalAmountProduct'>$"+totalAmount+"</td></tr>"+
+									"<tr><td style='text-align:right'"+ 
+									"colspan='6'>Total Discount: </td>"+
+									"<td id='totalDiscount'>$"+totalDiscount+"</td></tr>"+
+									"<tr><td style='text-align:right'"+
+									"colspan='6'>Total Tax: </td>"+
+									"<td id='totalTax'>$"+totalTax+"</td></tr>"+
+									"<tr><td style='text-align:right'"+ 
+									"colspan='6'><strong>TOTAL ="+"</strong></td>"+
+									"<td class='label label-important'"+
+									"style='display:block'><strong id='netAmount'> $"+netTotal+
+									"</strong></td></tr>";
+						grandTotal = netTotal;
+
+						$('#cartData').append(value2);
+						$('#summaryProductCount').empty().append(totalProducts + " Item(s)");
+						
+						// $('#cartCount').empty().append("[ "+totalProducts + " ]" +" " +"Itemes in your cart");
+						// $('#myCart').empty().append("<img src='/assets/user_UI/themes/images/ico-cart.png' alt='cart'>  <span class='badge badge-warning pull-right' id='cartleftpanelTotal'>$</span>"+totalProducts +" Itemes in your cart");
+						// $('#totalAmount').empty().append("$"+netTotal+".00");
+						// $('#cartleftpanelTotal').empty().append("$"+netTotal+".00");
+              		}
+           		}
+        });
+	}
+
+	function voucherDiscount()
+	{
+		var cart_product = "<%= cookies[:cartpid] %>"
+		var voucher_code = $('#voucherCode').val();
+		var amount = grandTotal;
+		
+		$.ajax({
+				type: "post",
+				dataType: 'json',
+				data: {"voucher_code": voucher_code,"amount": amount,"cart_product": cart_product},
+				url: "<%= url_for(:action => 'voucherDiscount') %>",
+				success: function(result)
+				{
+					var data = JSON.stringify(result);
+					// alert(data);
+              		var content = JSON.parse(data);
+              		if (content.message)
+              		{
+              			alert(content.message);
+              			$('#voucherCode').val("");
+              		}
+              		else
+              			$('#netAmount').empty().append("$"+data);
+
+				}
+		});
+	}
+
+	function setLoginUI()
+	{
+		"<% if session[:userid] %>"
+			window.location.href = window.location.origin + "/user_login/checkout";
+		"<% else %>"
+			window.location.href = window.location.origin + "/user_login/login";
+		"<% end %>"
+	}
+	
+</script>
+
+	<ul class="breadcrumb">
+		<li>
+			<a href="/user/index">Home</a>
+			<span class="divider">/</span>
+		</li>
+		<li class="active"> SHOPPING CART</li>
+	</ul>
+
+	<h3>
+		SHOPPING CART [
+		<small id="summaryProductCount"> </small>
+		]
+		<a class="btn btn-large pull-right" href="/user/index">
+			<i class="icon-arrow-left"></i>
+			Continue Shopping
+		</a>
+	</h3>
+	<hr class="soft">
+
+	<table class="table table-bordered">
+		<tbody>
+		<tr>
+		<th> I AM ALREADY REGISTERED </th>
+		</tr>
+		<tr>
+		<td>
+		<form class="form-horizontal" action="/user_login/attempt_login">
+			<div class="control-group">
+				<label class="control-label" for="inputUsername">Username</label>
+				<div class="controls">
+				<input id="inputUsername" type="text" placeholder="Username" name="inputEmail1">
+				</div>
+			</div>
+
+			<div class="control-group">
+				<label class="control-label" for="inputPassword1">Password</label>
+				<div class="controls">
+				<input id="inputPassword1" type="password" placeholder="Password" name="inputPassword1">
+				</div>
+			</div>
+
+			<div class="control-group">
+				<div class="controls">
+				<button class="btn" id="btnsignin" type="submit">Sign in</button>
+			<input type="hidden" name="summaryPage" />
+		</form>	
+				OR
+				<a class="btn" href="/user_registration/new">Register Now!</a>
+				</div>
+			</div>
+
+			<div class="control-group">
+				<div class="controls">
+				<a style="text-decoration:underline" href="#">Forgot password ?</a>
+				</div>
+			</div>
+		
+
+		</td>
+		</tr>
+		</tbody>
+	</table>
+
+	<table class="table table-bordered">
+		<thead>
+			<tr>
+			<th>Product</th>
+			<th>Description</th>
+			<th>Quantity/Update</th>
+			<th>Price</th>
+			<th>Discount</th>
+			<th>Tax</th>
+			<th>Total</th>
+			</tr>
+		</thead>
+		<tbody id="cartData">
+								
+		</tbody>
+	</table>
+
+	<table class="table table-bordered">
+		<tbody>
+			<tr>
+			<td>
+
+			<form class="form-horizontal">
+				<div class="control-group">
+				<label class="control-label">
+				<strong> VOUCHERS CODE: </strong>
+				</label>
+				<div class="controls">
+					<input class="input-medium" id="voucherCode" type="text" placeholder="CODE">
+					<button class="btn" type="button" onclick="voucherDiscount();"> ADD </button>
+				</div>
+			</form>
+			</td>
+			</tr>
+
+		</tbody>
+	</table>
+
+	<table class="table table-bordered">
+		<tbody>
+			<tr>
+			<th>ESTIMATE YOUR SHIPPING </th>
+			</tr>
+			<tr>
+
+			<td>
+			<form class="form-horizontal">
+			<div class="control-group">
+				<label class="control-label" for="inputCountry">Country </label>
+				<div class="controls">
+				<input id="inputCountry" type="text" placeholder="Country">
+				</div>
+			</div>
+
+			<div class="control-group">
+				<label class="control-label" for="inputPost">Post Code/ Zipcode </label>
+				<div class="controls">
+				<input id="inputPost" type="text" placeholder="Postcode">
+				</div>
+			</div>
+
+			<div class="control-group">
+				<div class="controls">
+				<button class="btn" type="submit">ESTIMATE </button>
+				</div>
+				</div>
+			</form>
+
+			</td>
+			</tr>
+		</tbody>
+	</table>
+
+	<a class="btn btn-large" href="/user/index">
+		<i class="icon-arrow-left"></i>
+		Continue Shopping
+	</a>
+	<a class="btn btn-large pull-right" onclick="setLoginUI();">
+			Next
+			<i class="icon-arrow-right"></i>
+	</a>
+
+	

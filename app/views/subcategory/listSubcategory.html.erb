@@ -1,0 +1,30 @@
+
+<%= will_paginate @subcategory %>
+
+<h2>Subcategory Details</h2>
+
+<%= link_to("Add New Subcategory", {:action => 'new'}) %>
+
+<table class="table table-striped">
+		<tr>
+			<th width="10%"> Subcategory Name</th> 
+			<th width="10%">Description</th>
+			<th width="30%">Action</th>
+		</tr>
+
+		<% @subcategory.each do |c| %>
+		<tr>
+			<td width="10%"> <%= c.name %> </td>
+			<td width="10%"> <%= c.description %> </td>
+			<td width="30%">
+				<%= link_to("Show", {:action => 'show', :id => c.id  }) %> |
+				<%= link_to("Edit", {:action => 'edit', :id => c.id })  %> |
+				<%= link_to("Delete", {:action => 'delete', :id => c.id }) %>
+			</td>
+		</tr>
+		<% end %>
+</table>
+
+			
+
+<%= will_paginate @subcategory %>

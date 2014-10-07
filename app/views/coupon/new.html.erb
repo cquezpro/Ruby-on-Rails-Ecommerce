@@ -1,0 +1,8 @@
+<%= link_to("<<Back to list", {:action => 'index'}) %>
+
+	<h2>Enter Coupon Details</h2>
+
+	<%= form_for(:coupon, :url => {:action => 'create'}) do |f| %>
+		<%= render(:partial => "form", :locals => {:f => f}) %>		
+		<%= submit_tag "Create Coupon", class: "btn btn-default" %>
+	<% end %>

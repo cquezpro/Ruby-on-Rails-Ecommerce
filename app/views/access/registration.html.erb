@@ -1,0 +1,8 @@
+  
+  <%= form_for(:userRegistration, :url => {:action => 'create'}, :html => {:class => "form-signin"}) do |f| %>
+    
+        <h2 class="form-signin-heading">Registration</h2>
+		<%= render(:partial => "adminForm", :locals => {:f => f}) %>		
+        <%= submit_tag "Sign Up", class: "btn btn-lg btn-primary btn-block" %>
+
+  <% end %>

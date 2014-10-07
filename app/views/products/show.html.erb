@@ -1,0 +1,33 @@
+	
+	<%= link_to("<<Back to List", {:action => 'index'}) %>
+
+
+	<h2>Product Details</h2>
+
+	<table class="table table-striped">
+		<tr>
+			<th>SubCategory ID</th> 
+			<td><%= @product.subcategory_id %></td>
+		</tr>
+		<tr>
+			<th>Product Name</th>
+			<td><%= @product.product_name %></td> 
+		</tr>
+		<tr>
+			<th>Price</th>
+			<td><%= @product.price %></td> 
+		</tr>
+		<tr>
+			<th>Quantity</th>
+			<td><%= @product.qty %></td> 
+		</tr>
+		<tr>
+			<th>Description</th>
+			<td><%= @product.product_desc %></td> 
+		</tr>
+		<tr>
+			<th>Product Image</th>
+			<td><%= image_tag("/images/#{@product.product_image}", :size => "50x50") %></td> 
+		</tr>
+		
+	</table>

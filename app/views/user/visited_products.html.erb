@@ -1,0 +1,62 @@
+
+<h2> Your Visited Products </h2>
+<ul class="breadcrumb">
+	<li>
+		<a href="/user/index">Home</a>
+	</li>
+</ul>
+
+<script>
+
+		function addtoCart(pid)
+		{
+			var pid = pid;
+			alert(pid);
+			$.ajax({
+	           type: "post",
+	           dataType: 'json',
+	           data:  {"pid": pid},
+	           url: "<%= url_for(:action => 'createCartDetails') %>",
+	           success: function(result)
+	           {   
+	           		var data = JSON.stringify(result);
+	           		alert("cartsize"+ data);
+               		var content = JSON.parse(data);
+	           }
+	        });
+
+		}
+
+</script>
+
+<% @visited_product_list.each do |product| %>
+		<% product.each do |p| %>
+			<ul class="thumbnails">
+				<li class="span3">
+					<div class="thumbnail">
+						<a href="/user/show/<%= p.id %>">
+						<img alt="" src="/images/<%= p.product_image %>">
+						</a>
+						<div class="caption">
+							<h5><%= p.product_name %></h5>
+							<p> <%= p.product_desc %> </p>
+							<h4 style="text-align:center">
+								<a class="btn" href="/user/show/<%= p.id %>">
+								<i class="icon-zoom-in"></i>
+								</a>
+								<a class="btn" href="" onclick="addtoCart(<%= p.id %>); return false;">
+								Add to
+								<i class="icon-shopping-cart"></i>
+								</a>
+								<a class="btn btn-primary" href="#">$<%= p.price %></a>
+							</h4>
+						</div>
+					</div>
+				</li>
+			</ul>
+		<% end %>
+<% end %>
+
+
+
+

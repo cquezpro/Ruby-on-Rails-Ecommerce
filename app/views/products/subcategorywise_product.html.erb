@@ -1,0 +1,37 @@
+
+<%= will_paginate @products %>
+
+<h2>Products Details</h2>
+
+	<%= link_to("Add New Product", {:action => 'new'}) %>
+
+	<table class="table table-striped">
+		<tr>
+			<th width="10%">Product Name</th> 
+			<th width="10%">Price</th>
+			<th width="10%">Quantity</th>  
+			<th width="10%">Description</th> 
+			<th width="10%">Product Image</th>
+			<th width="10%">Product for sell</th>
+			<th width="30%">Actions</th>
+		</tr>
+
+		<% @products.each do |product| %>
+		<tr>
+			
+			<td width="10%"> <%= product.product_name %> </td>
+			<td width="10%"> <%= product.price %> </td>
+			<td width="10%"> <%= product.qty %> </td>
+			<td width="10%"> <%= product.product_desc %> </td>
+			<td width="10%"> <%= image_tag("/images/#{product.product_image}", :size => "50x50") %> </td>
+			<td width="10%"> <%= product.sale_for %> </td>
+			<td width="30%">
+				<%= link_to("Show", {:action => 'show', :id => product.id  }) %> |
+				<%= link_to("Edit", {:action => 'edit', :id => product.id })  %> |
+				<%= link_to("Delete", {:action => 'delete', :id => product.id }) %>
+			</td>
+		</tr>
+		<% end %>
+	</table>
+
+<%= will_paginate @products %>

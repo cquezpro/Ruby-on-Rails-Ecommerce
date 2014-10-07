@@ -1,0 +1,147 @@
+ 
+<script type="text/javascript">
+
+		getCartdetails();
+
+		function getCartdetails(){
+
+			var uid = "<%= session[:user_id] %>"
+			$('#cartPanel').empty();
+			$.ajax({
+				type: "post",
+           		dataType: 'json',
+           		data: {"uid": uid},
+           		url: "<%= url_for(:action => 'list_cart_details') %>",
+           		success: function(result)
+           		{   
+           			var data = JSON.stringify(result);
+              		var content = JSON.parse(data);
+              		
+              		if (content.message)
+              		{
+              			$('#emptycartPanel').empty().append(content.message);
+              		}
+              		else{
+              			$('#emptycartPanel').empty();
+                    var cartHeader = "<table class='table table-striped'> <tbody><tr>" +
+                                      "<th width='20%'>Product Image</th>"+
+                                      "<th width='10%'>Product Name</th>" +
+                                      "<th width='10%''>Price</th>" +
+                                      "<th width='10%'>Qty</th>" +
+                                      "<th width='10%'> </th></tbody> </tr>";
+                                      
+                    $('#cartPanel').append(cartHeader);
+
+                    var cartValue = "";
+                    var total = 0;
+              			
+              			for(var i=0;i<content.length;i++)
+              			{
+              				
+              			   var id = content[i].id;
+                       total = content[i].total;
+
+                       cartValue = "<tr> <td width='20%'> " + "<img width='50' height='50' src='/images/" + content[i].product_image + "'" +
+                        "</td>" + "<td width='10%'>" + content[i].product_name + 
+                        "</td>" + "<td width='10%' id='subtotal-" + id + "'>" + content[i].sub_total + "</td>" +
+                         "<td width='10%'>" + "<input id = 'qtyvalue-" + id +  "' class='qtyvalue' name='qtyvalue' type = 'text' maxlength = '3' size = '1' style = 'text-align: center' value = '" +  content[i].qty + "' onclick='setVisible("+ id + ")'/> <br/>" + "<a id='save-" + id + "' style= 'visibility:hidden'  onclick='updateQuantity(" + id 
+                          + ");' > Save </a>" + "</td>" + "<td>" + "<a id = 'removeItem-" + id + "' onclick = 'deleteQuantity(" + id + ");'> " +
+                        " <img src = '/assets/shopping_cart_remove_98476.jpg' height = '25' width = '25' alt = 'Remove Product' /> </a> </td> </tr>" 
+
+                      $('#cartPanel').append(cartValue);
+
+                      
+              			}
+                    var grandTotal = "<tr> <td> <b> Total Amount </b> </td> <td id = 'total'> <b> " + total  + "</b> </td> </tr>" + "</table>"
+                      $('#cartPanel').append(grandTotal);
+              		}
+              	           
+       	      }
+			});
+
+		}
+	
+		//$(document).ready(function(){
+
+
+			//$('.qtyvalue').change(function(){
+
+      function setVisible(id){
+
+				//var q = ($(this).attr('id'));
+        var q = id;
+				// alert("id => " + q);
+				// var val = document.getElementById(q).value;
+				// alert("val ->" + val);
+				// var arrayID = q.split('-',2);
+				// var id = arrayID[1];
+				
+				// alert("id -> " + id);
+
+				document.getElementById("save-"+q).style.visibility = "visible";
+			//});
+
+		};
+
+		function updateQuantity(id){
+
+			var purchaseid = id;
+			alert("UP ID -> " + purchaseid);
+			var qty = $('#qtyvalue-'+id).val();
+			alert("Qty " + qty);
+
+			$.ajax({
+				type: "post",
+          		dataType: 'json',
+          		data: {"purchaseid": purchaseid,"qty": qty},
+          		url: "<%= url_for(:action => 'updateQuantity') %>",
+          		success: function(result)
+          		{   
+          			var data = JSON.stringify(result);
+              		var content = JSON.parse(data);
+              		alert("content " + content.message);
+              		var total = content.total;
+              		var subtotal = content.sub_total;
+              		//$('#total').attr(total);
+                  if (content.message)
+                  {
+                    $('#emptycartPanel').empty().append(content.message);   
+                  }
+                  else{
+                    $('#emptycartPanel').empty();
+                  }
+
+              		$('#subtotal-'+id).html(subtotal);
+              		$('#total').html(total);
+
+          		}	
+			});
+
+		}
+
+		function deleteQuantity(id){
+			var purchaseid = id;
+
+			$.ajax({
+				type: "post",
+				dataType: 'json',
+				data: {"purchaseid": purchaseid},
+				url: "<%= url_for(:action => 'deleteQuantity') %>",
+				success: function(result){
+					var data = JSON.stringify(result);
+              		var content = JSON.parse(data);
+              		if (content.message){
+              			$('#emptycartPanel').empty().append(content.message)
+                    getCartdetails();
+              		}
+              	}
+			});
+		}
+
+</script>
+
+<h2> <b> CART </b> </h2>
+
+<div id = "cartPanel" > </div>
+
+<div id = "emptycartPanel"> </div>

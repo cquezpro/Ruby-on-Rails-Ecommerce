@@ -1,0 +1,15 @@
+
+<div class="span9">
+    <ul class="breadcrumb">
+		<li><a href="/user/index">Home</a> <span class="divider">/</span></li>
+		<li class="active">Registration</li>
+    </ul>
+	<h3> Registration</h3>	
+	<div class="well">
+		<h4>Your personal information</h4>
+		<%= form_for(:userRegistration,:class => "form-horizontal" ,:url => {:action => 'create'}) do |f| %>
+				<%= render(:partial => "form", :locals => {:f => f}) %>		
+				<%= submit_tag "Register", class: "btn btn-large btn-success" %>
+		<% end %>
+	</div>
+</div>

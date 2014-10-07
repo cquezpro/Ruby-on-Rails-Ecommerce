@@ -1,0 +1,16 @@
+<p id="notice"><%= notice %></p>
+
+
+<table class="table table-striped">
+	<tr>
+  		<th> <strong>Name:</strong> </th>
+  		<td> <%= @category.name %> </td> 
+  	</tr> 
+  	<tr>
+  		<th> <strong>Description:</strong> </th>
+  		<td> <%= @category.description %> </td> 
+  	</tr> 
+</table>
+
+<%= link_to 'Edit', edit_category_path(@category) %> |
+<%= link_to 'Back', categories_path %>

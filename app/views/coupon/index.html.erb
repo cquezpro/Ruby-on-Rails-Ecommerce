@@ -1,0 +1,36 @@
+
+
+
+
+	<h2>Coupon Details</h2>
+
+	<%= link_to("Add New Coupon", {:action => 'new'}) %>
+
+	<table class="table table-striped">
+		<tr>
+			<th width="10%">Coupon Code</th> 
+			<th width="10%">Coupon Discount</th> 
+			<th width="10%">Product Name</th>
+			<th width="30%">Actions</th> 
+		</tr>
+
+		<% @coupon.each do |coupon| %>
+		<tr>
+			<td width="10%"> <%= coupon.coupon_code %> </td>
+			<td width="10%"> <%= coupon.coupon_discount %> </td>
+			<% pid = coupon.product_id %>
+			<% @product = Product.where("id = #{pid}") %>
+			<% @product.each do |p| %>
+				<td width="10%"> <%= p.product_name %> </td>
+			<% end %>
+						
+			<td width="30%">
+				<%= link_to("Show", {:action => 'show', :id => coupon.id}) %>
+				<%= link_to("Edit", {:action => 'edit', :id => coupon.id})  %>
+				<%= link_to("Delete", {:action => 'delete', :id => coupon.id}) %>
+			</td>
+		</tr>
+		<% end %>
+	</table>
+
+

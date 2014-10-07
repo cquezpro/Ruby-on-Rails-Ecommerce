@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html>
+	<head>
+
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+	  <title>Ecommerce Application</title>
+	  <%= csrf_meta_tag %>
+	  	
+	<!--Less styles -->
+   <!-- Other Less css file //different less files has different color scheam
+	<link rel="stylesheet/less" type="text/css" href="themes/less/simplex.less">
+	<link rel="stylesheet/less" type="text/css" href="themes/less/classified.less">
+	<link rel="stylesheet/less" type="text/css" href="themes/less/amelia.less">  MOVE DOWN TO activate
+	-->
+	<!--<link rel="stylesheet/less" type="text/css" href="themes/less/bootshop.less">
+	<script src="themes/js/less.js" type="text/javascript"></script> -->
+	<!-- Bootstrap style --> 
+    <link id="callCss" rel="stylesheet" href="/assets/user_UI/themes/bootshop/bootstrap.min.css" media="screen"/>
+    <link href="/assets/user_UI/themes/css/base.css" rel="stylesheet" media="screen"/>
+<!-- Bootstrap style responsive -->	
+	<link href="/assets/user_UI/themes/css/bootstrap-responsive.min.css" rel="stylesheet"/>
+	<link href="/assets/user_UI/themes/css/font-awesome.css" rel="stylesheet" type="text/css">
+
+<!-- Google-code-prettify -->	
+	<link href="/assets/user_UI/themes/js/google-code-prettify/prettify.css" rel="stylesheet"/>
+<!-- fav and touch icons -->
+    <link rel="shortcut icon" href="/assets/user_UI/themes/images/ico/favicon.ico">
+    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/assets/user_UI/themes/images/ico/apple-touch-icon-144-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="/assets/user_UI/themes/images/ico/apple-touch-icon-114-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="/assets/user_UI/themes/images/ico/apple-touch-icon-72-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" href="/assets/user_UI/themes/images/ico/apple-touch-icon-57-precomposed.png">
+	<style type="text/css" id="enject"></style>
+
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js">
+	</script>
+
+	<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.js"></script>
+
+	<script> 
+		
+		// setCartcount();
+
+		function setCartcount()
+		{		
+
+			var cart_product = "<%= cookies[:cartpid] %>"
+			var cart_qty = "<%= cookies[:cartdata] %>"
+
+			$.ajax({
+	              	type: "post",
+	              	dataType: 'json',
+	              	data: {"cart_product": cart_product,"cart_qty": cart_qty},
+           			url: "<%= url_for(:controller => 'purchase_product',:action => 'list_cart_details') %>",
+           			success: function(result)
+           			{   
+	           			var data = JSON.stringify(result);
+	           			var content = JSON.parse(data);
+
+              			var totalAmount = 0;
+              			var totalDiscount = 0;
+              			var totalTax = 0;
+              			var netTotal = 0;
+              			var totalProducts = 0;
+
+              			for(var i=0;i<content.length;i++)
+              			{
+              				totalAmount = content[i].totalAmount
+              				totalDiscount = content[i].totalDiscount
+              				totalTax = content[i].totalTax
+              				totalProducts = content[i].totalProducts
+              			}
+              			netTotal = totalAmount - totalDiscount + totalTax;
+              		              			
+              			$('#cartCount').append("[ "+totalProducts + " ]" +" " +"Itemes in your cart");
+						$('#myCart').append(totalProducts +" Itemes in your cart");
+              			              			              			
+						$('#totalAmount').append(netTotal+".00");
+	                	$('#cartleftpanelTotal').append(netTotal+".00");
+	                		                	
+	           		}
+	        });
+
+		}
+
+		$(document).ready(function()
+		{
+			$('#srchFld').val(sessionStorage.pname);
+			if (sessionStorage.catid == 0)
+			{
+				$('#category_id').val("All");
+			}
+			else
+				$('#category_id').val(sessionStorage.catid);
+
+			"<% if session[:userid] %>" 
+
+				$('#headerLogin').empty().append("<a href='#' role='button'"+ 
+					"data-toggle='modal' style='padding-right:0' "+
+					"><span id='btnlogin'"+" class='btn btn-large btn-success'>Logout</span></a>");
+
+				$('#btnlogin').on("click",function(){
+						$('#btnlogin').empty().append("Login");
+						window.location.href = window.location.origin + "/user_login/logout";
+				});
+
+			"<% end %>"  
+
+			var cart_product = "<%= cookies[:cartpid] %>"
+			
+			if (cart_product == "")
+			{
+				$('#cartCount').append("[ "+0 + " ]" +" " +"Itemes in your cart");
+              	$('#myCart').append(0 +" Itemes in your cart");
+              	$('#totalAmount').append(0+".00");
+	            $('#cartleftpanelTotal').append(0+".00");
+			}
+			else
+				setCartcount();
+			
+		});
+		
+
+		function searchProducts(){
+
+			var product_name = document.getElementById('srchFld').value;
+			sessionStorage.pname = 	product_name;
+			getCategory();
+			//alert("Catid =>" + sessionStorage.catid);
+			window.location.href = window.location.origin + "/user/searchProduct";
+		} 
+
+		function getSubcategory(subid){
+			sessionStorage.subcategory_id = subid;
+			// alert("subcatid" + sessionStorage.subcategory_id);
+			window.location.href = window.location.origin + "/user/subCategorywiseProducts";
+		}
+
+		function getCategory()
+		{
+			var value = document.getElementById("category_id");
+			var value1 = value.options[value.selectedIndex].value;
+			if (value1 == "All")
+				sessionStorage.catid = 0				
+			else if(value1 == 4)
+				sessionStorage.catid = 4
+			else if(value1 == 5)
+				sessionStorage.catid = 5
+			else if(value1 == 6)
+				sessionStorage.catid = 6
+			else if(value1 == 7)
+				sessionStorage.catid = 7
+			else if(value1 == 8)
+				sessionStorage.catid = 8
+		}
+		 
+  		function setLoginUI()
+  		{
+  			$('#login').attr("style","display: block;");
+  		}
+
+  		function closeLoginUI()
+  		{
+  			$('#login').attr("style","display: none;");
+  		}
+
+  		  		
+	</script>
+	
+	</head>
+
+	<body>
+
+	<div id="header">
+	<div class="container">
+	<div id="welcomeLine" class="row">
+	<% if session[:email_id] %>
+		<div class="span6">Welcome! <strong><%= "#{session[:email_id]}" %></strong></div>
+	<% else %>
+		<div class="span6">Welcome! <strong></strong></div>
+	<% end %>
+	<div class="span6">
+	<div class="pull-right">
+		<a href="product_summary.html"><span class="">Fr</span></a>
+		<a href="product_summary.html"><span class="">Es</span></a>
+		<span class="btn btn-mini">En</span>
+		<a href="product_summary.html"><span>&pound;</span></a>
+		<span class="btn btn-mini" id="totalAmount">$</span>
+		<a href="product_summary.html"><span class="">$</span></a>
+		<a href="/purchase_product/productSummary"><span id="cartCount" class="btn btn-mini btn-primary"><i class="icon-shopping-cart icon-white"></i>   
+		</span> </a> 
+	</div>
+	</div>
+	</div>
+
+	<!-- Navbar ================================================== -->
+
+	<div id="logoArea" class="navbar">
+	<a id="smallScreen" data-target="#topMenu" data-toggle="collapse" class="btn btn-navbar">
+		<span class="icon-bar"></span>
+		<span class="icon-bar"></span>
+		<span class="icon-bar"></span>
+	</a>
+	  <div class="navbar-inner">
+	    <a class="brand" href="/user/index"><img src="/assets/user_UI/themes/images/logo.png" alt="Bootsshop"/></a>
+
+			<form class="form-inline navbar-search" method="post" action="">
+			<input id="srchFld" class="srchTxt" type="text" />
+
+			<% category = Category.all %>
+			<select class="srchTxt" id="category_id" name="category_id" onchange="getCategory();">
+				<option value="All" selected>All</option>
+				<% category.each do |c| %>
+					<option value="<%= c.id %>"> <%= "#{c.name}" %> </option>
+				<% end %>
+			</select> 
+			  <button type="button" id="submitButton" class="btn btn-primary" onclick="searchProducts();">Go</button>
+	    	</form>
+
+		<ul id="topMenu" class="nav pull-right">
+		 <li class=""><a href="special_offer.html">Specials Offer</a></li>
+		 <li class=""><a href="normal.html">Delivery</a></li>
+		 <li class=""><a href="/user/contact">Contact</a></li>
+		 <li class="" id="headerLogin">
+		 <a href="#" role="button" data-toggle="modal" style="padding-right:0" onclick="setLoginUI();"><span class="btn btn-large btn-success">Login</span></a>
+
+		 <div id="login" class="modal hide fade in" tabindex="-1" role="dialog" aria-labelledby="login" aria-hidden="false" >
+			  <div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true" onclick="closeLoginUI();">×</button>
+				<h3>Login Block</h3>
+			  </div>
+			
+			<div class="modal-body">
+				<form class="form-horizontal loginFrm" action="/user_login/attempt_login">
+				  <div class="control-group">					
+					<input type="text" id="inputEmail1" name="inputEmail1" placeholder="Email">
+				  </div>
+				  <div class="control-group">
+					<input type="password" id="inputPassword1" name="inputPassword1" placeholder="Password">
+				  </div>
+				  <div class="control-group">
+					<label class="checkbox">
+					<input type="checkbox"> Remember me
+					</label>
+				  </div>
+					<button type="submit" class="btn btn-success">Sign in</button>
+					<input type="hidden" name="userPage" />
+				</form>		
+					<button class="btn" data-dismiss="modal" aria-hidden="false" style="margin-top: -66px; margin-left: 81px;" onclick="closeLoginUI();">Close</button>
+				
+			</div>
+
+		</div>
+		
+		</li>
+	    </ul>
+	  </div>
+	</div>
+	</div>
+	</div>
+
+<!-- Header End====================================================================== -->
+
+	<div id="carouselBlk">
+		<div id="myCarousel" class="carousel slide">
+			<div class="carousel-inner">
+			  <div class="item active">
+			  <div class="container">
+				<a href="/user_registration/new"><img style="width:100%" src="/assets/user_UI/themes/images/carousel/1.png" alt="special offers"/></a>
+				<div class="carousel-caption">
+					  <h4>Second Thumbnail label</h4>
+					  <p>Cras justo odio, dapibus ac facilisis in, egestas eget quam. Donec id elit non mi porta gravida at eget metus. Nullam id dolor id nibh ultricies vehicula ut id elit.</p>
+					</div>
+			  </div>
+			  </div>
+			  <div class="item">
+			  <div class="container">
+				<a href="/user_registration/new"><img style="width:100%" src="/assets/user_UI/themes/images/carousel/2.png" alt=""/></a>
+					<div class="carousel-caption">
+					  <h4>Second Thumbnail label</h4>
+					  <p>Cras justo odio, dapibus ac facilisis in, egestas eget quam. Donec id elit non mi porta gravida at eget metus. Nullam id dolor id nibh ultricies vehicula ut id elit.</p>
+					</div>
+			  </div>
+			  </div>
+			  <div class="item">
+			  <div class="container">
+				<a href="/user_registration/new"><img src="/assets/user_UI/themes/images/carousel/3.png" alt=""/></a>
+				<div class="carousel-caption">
+					  <h4>Second Thumbnail label</h4>
+					  <p>Cras justo odio, dapibus ac facilisis in, egestas eget quam. Donec id elit non mi porta gravida at eget metus. Nullam id dolor id nibh ultricies vehicula ut id elit.</p>
+					</div>
+				
+			  </div>
+			  </div>
+			   <div class="item">
+			   <div class="container">
+				<a href="/user_registration/new"><img src="/assets/user_UI/themes/images/carousel/4.png" alt=""/></a>
+				<div class="carousel-caption">
+					  <h4>Second Thumbnail label</h4>
+					  <p>Cras justo odio, dapibus ac facilisis in, egestas eget quam. Donec id elit non mi porta gravida at eget metus. Nullam id dolor id nibh ultricies vehicula ut id elit.</p>
+					</div>
+			   
+			  </div>
+			  </div>
+			   <div class="item">
+			   <div class="container">
+				<a href="/user_registration/new"><img src="/assets/user_UI/themes/images/carousel/5.png" alt=""/></a>
+				<div class="carousel-caption">
+					  <h4>Second Thumbnail label</h4>
+					  <p>Cras justo odio, dapibus ac facilisis in, egestas eget quam. Donec id elit non mi porta gravida at eget metus. Nullam id dolor id nibh ultricies vehicula ut id elit.</p>
+				</div>
+			  </div>
+			  </div>
+			   <div class="item">
+			   <div class="container">
+				<a href="/user_registration/new"><img src="/assets/user_UI/themes/images/carousel/6.png" alt=""/></a>
+				<div class="carousel-caption">
+					  <h4>Second Thumbnail label</h4>
+					  <p>Cras justo odio, dapibus ac facilisis in, egestas eget quam. Donec id elit non mi porta gravida at eget metus. Nullam id dolor id nibh ultricies vehicula ut id elit.</p>
+					</div>
+			  </div>
+			  </div>
+			</div>
+			<a class="left carousel-control" href="#myCarousel" data-slide="prev">&lsaquo;</a>
+			<a class="right carousel-control" href="#myCarousel" data-slide="next">&rsaquo;</a>
+		  </div> 
+	</div>
+
+	<div id="mainBody">
+	<div class="container">
+	<div class="row">
+	<div id="sidebar" class="span3">
+
+		<div class="well well-small"><a id="myCart" href="/purchase_product/productSummary"><img src="/assets/user_UI/themes/images/ico-cart.png" alt="cart">   <span class="badge badge-warning pull-right" id="cartleftpanelTotal">$</span></a></div>
+
+		<ul id="sideManu" class="nav nav-tabs nav-stacked">
+
+			<% category = Category.all %>
+
+				<% category.each do |c| %>
+
+					<% totalcategory = 0 %>
+					<% subcatid = Subcategory.where(:category_id => c.id) %>
+					<% subcatid.each do |sc| %>
+						<% totalproduct = Product.where(:subcategory_id => sc.id).count%>
+						<% totalcategory = totalcategory + totalproduct %>
+					<% end %>
+				
+					<% if c.name == "CLOTHES" %>
+						<li class="subMenu open"> 
+							<a> <%= c.name %> <%="["%><%= totalcategory %><%="]"%>
+							    </a>
+							<ul>
+								<% subcategory = Subcategory.where(:category_id => c.id) %>
+
+								<% subcategory.each do |sc| %>
+
+									<% totalsubCategory = Product.where(:subcategory_id => sc.id).count %>
+									<% subid = sc.id %>
+									
+									<% if sc.name == "Kids Clothing" %>
+										
+										<li> <a class="active" onclick="getSubcategory(<%= subid %>);">
+
+										<i class="icon-chevron-right"></i>
+											<%= sc.name %> <%= "(" %> <%= totalsubCategory%> <%= ")" %>
+										</a> </li>
+									<% else %>
+										
+										<li> <a onclick="getSubcategory(<%= subid %>);"><i class="icon-chevron-right"></i>
+											<%= sc.name %> <%= "(" %> <%= totalsubCategory%> <%= ")" %>
+										</a> </li>
+									<% end %>
+								<% end %>
+							</ul>
+					    </li>
+					<% else %>
+						<li class="subMenu"> 
+							<a> <%= c.name %> <%="["%><%= totalcategory %><%="]"%> </a>
+							<ul style="display:none">
+								<% subcategory = Subcategory.where(:category_id => c.id) %>
+								<% subcategory.each do |sc| %>
+
+									<% totalsubCategory = Product.where(:subcategory_id => sc.id).count %>
+									<% subid = sc.id %>
+
+									<li> <a onclick="getSubcategory(<%= subid %>);"><i class="icon-chevron-right"></i>
+										<%= sc.name %> <%= "(" %> <%= totalsubCategory%> <%= ")" %>
+									</a> </li>
+								<% end %>
+							</ul>
+					    </li>
+					<% end %>
+				<% end %>
+
+			<!-- <li class="subMenu open"><a> ELECTRONICS [230]</a>
+				<ul>
+				<li><a class="active" href="products.html"><i class="icon-chevron-right"></i>Cameras (100) </a></li>
+
+				<li><a href="products.html"><i class="icon-chevron-right"></i>Computers, Tablets & laptop (30)</a></li>
+				<li><a href="products.html"><i class="icon-chevron-right"></i>Mobile Phone (80)</a></li>
+				<li><a href="products.html"><i class="icon-chevron-right"></i>Sound & Vision (15)</a></li>
+				</ul>
+			</li>
+			<li class="subMenu"><a> CLOTHES [840] </a>
+			<ul style="display:none">
+				<li><a href="products.html"><i class="icon-chevron-right"></i>Women's Clothing (45)</a></li>
+				<li><a href="products.html"><i class="icon-chevron-right"></i>Women's Shoes (8)</a></li>												
+				<li><a href="products.html"><i class="icon-chevron-right"></i>Women's Hand Bags (5)</a></li>	
+				<li><a href="products.html"><i class="icon-chevron-right"></i>Men's Clothings  (45)</a></li>
+				<li><a href="products.html"><i class="icon-chevron-right"></i>Men's Shoes (6)</a></li>												
+				<li><a href="products.html"><i class="icon-chevron-right"></i>Kids Clothing (5)</a></li>												
+				<li><a href="products.html"><i class="icon-chevron-right"></i>Kids Shoes (3)</a></li>												
+			</ul>
+			</li>
+			<li class="subMenu"><a>FOOD AND BEVERAGES [1000]</a>
+				<ul style="display:none">
+				<li><a href="products.html"><i class="icon-chevron-right"></i>Angoves  (35)</a></li>
+				<li><a href="products.html"><i class="icon-chevron-right"></i>Bouchard Aine & Fils (8)</a></li>												
+				<li><a href="products.html"><i class="icon-chevron-right"></i>French Rabbit (5)</a></li>	
+				<li><a href="products.html"><i class="icon-chevron-right"></i>Louis Bernard  (45)</a></li>
+				<li><a href="products.html"><i class="icon-chevron-right"></i>BIB Wine (Bag in Box) (8)</a></li>												
+				<li><a href="products.html"><i class="icon-chevron-right"></i>Other Liquors & Wine (5)</a></li>												
+				<li><a href="products.html"><i class="icon-chevron-right"></i>Garden (3)</a></li>												
+				<li><a href="products.html"><i class="icon-chevron-right"></i>Khao Shong (11)</a></li>												
+			</ul>
+			</li>
+			<li><a href="products.html">HEALTH & BEAUTY [18]</a></li>
+			<li><a href="products.html">SPORTS & LEISURE [58]</a></li>
+			<li><a href="products.html">BOOKS & ENTERTAINMENTS [14]</a></li> -->
+
+		</ul>
+
+
+		<br/>
+		  <div class="thumbnail">
+			<img src="/assets/user_UI/themes/images/products/panasonic.jpg" alt="Bootshop panasonoc New camera"/>
+			<div class="caption">
+			  <h5>Panasonic</h5>
+				<h4 style="text-align:center"><a class="btn" href="product_details.html"> <i class="icon-zoom-in"></i></a> <a class="btn" href="#">Add to <i class="icon-shopping-cart"></i></a> <a class="btn btn-primary" href="#">$222.00</a></h4>
+			</div>
+		  </div><br/>
+			<div class="thumbnail">
+				<img src="/assets/user_UI/themes/images/products/kindle.png" title="Bootshop New Kindel" alt="Bootshop Kindel">
+				<div class="caption">
+				  <h5>Kindle</h5>
+				    <h4 style="text-align:center"><a class="btn" href="product_details.html"> <i class="icon-zoom-in"></i></a> <a class="btn" href="#">Add to <i class="icon-shopping-cart"></i></a> <a class="btn btn-primary" href="#">$222.00</a></h4>
+				</div>
+			  </div><br/>
+			<div class="thumbnail">
+				<img src="/assets/user_UI/themes/images/payment_methods.png" title="Bootshop Payment Methods" alt="Payments Methods">
+				<div class="caption">
+				  <h5>Payment Methods</h5>
+				</div>
+			  </div>
+	</div>
+
+	<!-- Before yield -->
+	<div class="span9">
+		<% if !flash[:notice].blank? %>
+                    <div class="notice">
+                    <%= flash[:notice] %>
+                    </div>
+        <% end %>
+		<%= yield %>
+	</div>
+	<!-- After yield -->
+	</div>
+	</div>
+	</div>
+
+
+<div  id="footerSection">
+	<div class="container">
+		<div class="row">
+			<div class="span3">
+				<h5>ACCOUNT</h5>
+				<a href="login.html">YOUR ACCOUNT</a>
+				<a href="login.html">PERSONAL INFORMATION</a> 
+				<a href="login.html">ADDRESSES</a> 
+				<a href="login.html">DISCOUNT</a>  
+				<a href="login.html">ORDER HISTORY</a>
+			 </div>
+			<div class="span3">
+				<h5>INFORMATION</h5>
+				<a href="contact.html">CONTACT</a>  
+				<a href="register.html">REGISTRATION</a>  
+				<a href="legal_notice.html">LEGAL NOTICE</a>  
+				<a href="tac.html">TERMS AND CONDITIONS</a> 
+				<a href="faq.html">FAQ</a>
+			 </div>
+			<div class="span3">
+				<h5>OUR OFFERS</h5>
+				<a href="#">NEW PRODUCTS</a> 
+				<a href="#">TOP SELLERS</a>  
+				<a href="special_offer.html">SPECIAL OFFERS</a>  
+				<a href="#">MANUFACTURERS</a> 
+				<a href="#">SUPPLIERS</a> 
+			 </div>
+			<div id="socialMedia" class="span3 pull-right">
+				<h5>SOCIAL MEDIA </h5>
+				<a href="#"><img width="60" height="60" src="/assets/user_UI/themes/images/facebook.png" title="facebook" alt="facebook"/></a>
+				<a href="#"><img width="60" height="60" src="/assets/user_UI/themes/images/twitter.png" title="twitter" alt="twitter"/></a>
+				<a href="#"><img width="60" height="60" src="/assets/user_UI/themes/images/youtube.png" title="youtube" alt="youtube"/></a>
+			 </div> 
+		 </div>
+		<p class="pull-right">&copy; Bootshop</p>
+	</div><!-- Container End -->
+	</div>
+
+<!-- Placed at the end of the document so the pages load faster ============================================= -->
+	<script src="/assets/user_UI/themes/js/jquery.js" type="text/javascript"></script>
+	<script src="/assets/user_UI/themes/js/bootstrap.min.js" type="text/javascript"></script>
+	<script src="/assets/user_UI/themes/js/google-code-prettify/prettify.js"></script>
+	
+	<script src="/assets/user_UI/themes/js/bootshop.js"></script>
+    <script src="/assets/user_UI/themes/js/jquery.lightbox-0.5.js"></script>
+	
+	<!-- Themes switcher section ============================================================================================= -->
+
+	<div id="secectionBox">
+	<link rel="stylesheet" href="/assets/user_UI/themes/switch/themeswitch.css" type="text/css" media="screen" />
+	<script src="/assets/user_UI/themes/switch/theamswitcher.js" type="text/javascript" charset="utf-8"></script>
+
+		<div id="themeContainer">
+		<div id="hideme" class="themeTitle">Style Selector</div>
+		<div class="themeName">Oregional Skin</div>
+		<div class="images style">
+		<a href="themes/css/#" name="bootshop"><img src="/assets/user_UI/themes/switch/images/clr/bootshop.png" alt="bootstrap business templates" class="active"></a>
+		<a href="themes/css/#" name="businessltd"><img src="/assets/user_UI/themes/switch/images/clr/businessltd.png" alt="bootstrap business templates" class="active"></a>
+		</div>
+		<div class="themeName">Bootswatch Skins (11)</div>
+
+		<div class="images style">
+			<a href="themes/css/#" name="amelia" title="Amelia"><img src="/assets/user_UI/themes/switch/images/clr/amelia.png" alt="bootstrap business templates"></a>
+			<a href="themes/css/#" name="spruce" title="Spruce"><img src="/assets/user_UI/themes/switch/images/clr/spruce.png" alt="bootstrap business templates" ></a>
+			<a href="themes/css/#" name="superhero" title="Superhero"><img src="/assets/user_UI/themes/switch/images/clr/superhero.png" alt="bootstrap business templates"></a>
+			<a href="themes/css/#" name="cyborg"><img src="/assets/user_UI/themes/switch/images/clr/cyborg.png" alt="bootstrap business templates"></a>
+			<a href="themes/css/#" name="cerulean"><img src="/assets/user_UI/themes/switch/images/clr/cerulean.png" alt="bootstrap business templates"></a>
+			<a href="themes/css/#" name="journal"><img src="/assets/user_UI/themes/switch/images/clr/journal.png" alt="bootstrap business templates"></a>
+			<a href="themes/css/#" name="readable"><img src="/assets/user_UI/themes/switch/images/clr/readable.png" alt="bootstrap business templates"></a>	
+			<a href="themes/css/#" name="simplex"><img src="/assets/user_UI/themes/switch/images/clr/simplex.png" alt="bootstrap business templates"></a>
+			<a href="themes/css/#" name="slate"><img src="/assets/user_UI/themes/switch/images/clr/slate.png" alt="bootstrap business templates"></a>
+			<a href="themes/css/#" name="spacelab"><img src="/assets/user_UI/themes/switch/images/clr/spacelab.png" alt="bootstrap business templates"></a>
+			<a href="themes/css/#" name="united"><img src="/assets/user_UI/themes/switch/images/clr/united.png" alt="bootstrap business templates"></a>
+			<p style="margin:0;line-height:normal;margin-left:-10px;display:none;"><small>These are just examples and you can build your own color scheme in the backend.</small></p>
+		</div>
+		<div class="themeName">Background Patterns </div>
+		<div class="images patterns">
+			<a href="themes/css/#" name="pattern1"><img src="/assets/user_UI/themes/switch/images/pattern/pattern1.png" alt="bootstrap business templates" class="active"></a>
+			<a href="themes/css/#" name="pattern2"><img src="/assets/user_UI/themes/switch/images/pattern/pattern2.png" alt="bootstrap business templates"></a>
+			<a href="themes/css/#" name="pattern3"><img src="/assets/user_UI/themes/switch/images/pattern/pattern3.png" alt="bootstrap business templates"></a>
+			<a href="themes/css/#" name="pattern4"><img src="/assets/user_UI/themes/switch/images/pattern/pattern4.png" alt="bootstrap business templates"></a>
+			<a href="themes/css/#" name="pattern5"><img src="/assets/user_UI/themes/switch/images/pattern/pattern5.png" alt="bootstrap business templates"></a>
+			<a href="themes/css/#" name="pattern6"><img src="/assets/user_UI/themes/switch/images/pattern/pattern6.png" alt="bootstrap business templates"></a>
+			<a href="themes/css/#" name="pattern7"><img src="/assets/user_UI/themes/switch/images/pattern/pattern7.png" alt="bootstrap business templates"></a>
+			<a href="themes/css/#" name="pattern8"><img src="/assets/user_UI/themes/switch/images/pattern/pattern8.png" alt="bootstrap business templates"></a>
+			<a href="themes/css/#" name="pattern9"><img src="/assets/user_UI/themes/switch/images/pattern/pattern9.png" alt="bootstrap business templates"></a>
+			<a href="themes/css/#" name="pattern10"><img src="/assets/user_UI/themes/switch/images/pattern/pattern10.png" alt="bootstrap business templates"></a>
+			
+			<a href="themes/css/#" name="pattern11"><img src="/assets/user_UI/themes/switch/images/pattern/pattern11.png" alt="bootstrap business templates"></a>
+			<a href="themes/css/#" name="pattern12"><img src="/assets/user_UI/themes/switch/images/pattern/pattern12.png" alt="bootstrap business templates"></a>
+			<a href="themes/css/#" name="pattern13"><img src="/assets/user_UI/themes/switch/images/pattern/pattern13.png" alt="bootstrap business templates"></a>
+			<a href="themes/css/#" name="pattern14"><img src="/assets/user_UI/themes/switch/images/pattern/pattern14.png" alt="bootstrap business templates"></a>
+			<a href="themes/css/#" name="pattern15"><img src="/assets/user_UI/themes/switch/images/pattern/pattern15.png" alt="bootstrap business templates"></a>
+			
+			<a href="themes/css/#" name="pattern16"><img src="/assets/user_UI/themes/switch/images/pattern/pattern16.png" alt="bootstrap business templates"></a>
+			<a href="themes/css/#" name="pattern17"><img src="/assets/user_UI/themes/switch/images/pattern/pattern17.png" alt="bootstrap business templates"></a>
+			<a href="themes/css/#" name="pattern18"><img src="/assets/user_UI/themes/switch/images/pattern/pattern18.png" alt="bootstrap business templates"></a>
+			<a href="themes/css/#" name="pattern19"><img src="/assets/user_UI/themes/switch/images/pattern/pattern19.png" alt="bootstrap business templates"></a>
+			<a href="themes/css/#" name="pattern20"><img src="/assets/user_UI/themes/switch/images/pattern/pattern20.png" alt="bootstrap business templates"></a>
+			 
+		</div>
+		</div>
+	</div>
+	<span id="themesBtn"></span>
+	
+	</body>
+</html>

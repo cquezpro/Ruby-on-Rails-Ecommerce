@@ -1,0 +1,56 @@
+
+<h2>Subcategory Details</h2>
+
+<script type="text/javascript">
+
+	getSubcategory();
+
+	function getSubcategory()
+  {
+
+		var role = "<%= session[:role] %>";
+    	//alert("Role" + role);
+		$.ajax({
+          		type: "post",
+          		dataType: 'json',
+          		data: {"role": role},
+          		url:"<%= url_for(:action => 'list') %>",
+          		success: function(result)
+          		{   
+          			var data = JSON.stringify(result);
+              		var content = JSON.parse(data);
+                	$('#subcategory').empty();
+                    var header = "<table class='table table-striped'><tr>"       +"<th width='10%'>Subcategory Name</th>"+
+                                "<th width='10%'>Description</th>" + 
+                                "<th width='30%'>Actions</th></tr>";
+
+                    $('#subcategory').append(header);
+                    var value = "";
+                      
+                    for(var i=0;i<content.length;++i)
+                    {                   
+                        var id = content[i].id;
+                        value = "<tr><td width='30%'>"+
+                                content[i].subcategory_name + "</td>"+
+                                "<td width='30%'>"+ 
+                                content[i].subcategory_desc + "</td>"+ 
+                                "<td width='30%'> <a href='/subcategory/show/" + id +"'>Show</a>| "+
+                                "<a href='/subcategory/edit/" + id +"'>Edit</a> | " +
+                                "<a href='/subcategory/delete/" + id +"'>Delete</a> | " +
+                                "<a href='/products/subcategorywise_product/"+id+"'> Show Products </a>"+
+                                "</td></tr></table>";
+                          
+                          $('#subcategory').append(value);
+                      }
+                    
+              }
+                                           		
+              
+        });
+	}
+
+</script>
+
+<div> <%= link_to("Add New Subcategory", {:action => 'new'}) %> </div>
+
+<div class="row text-center" id = "subcategory"> </div>

@@ -1,0 +1,90 @@
+
+
+<%= render 'application/error_messages', object: @register %>
+
+	<div class="form-group">
+      <%= f.label(:first_name) %>
+      <%= f.text_field :first_name, class: "form-control",placeholder: "First Name"  %>
+   </div>
+
+   <div class="form-group">
+      <%= f.label(:last_name) %>
+      <%= f.text_field :last_name, class: "form-control",placeholder: "Last Name"  %>
+   </div>
+
+   <div class="form-group">
+      <%= f.label(:username) %>
+      <%= f.text_field :username, class: "form-control",placeholder: " Username"  %>
+      <p id = "message_username" style = "display:none;">Minimum 8 characters are required</p>
+   </div>
+
+   <div class="form-group">
+      <%= f.label(:password) %>
+      <%= f.password_field :password, class: "form-control",placeholder: "Password"  %>
+   </div>
+
+   <div class="form-group">
+      <%= f.label(:password_confirmation) %>
+      <%= f.password_field :password_confirmation, class: "form-control",placeholder: "Confirm Password"  %>
+      <p id = "message" style = "display:none;">Enter correct Password</p>
+   </div>
+
+   <div class="form-group">
+      <%= f.label(:email) %>
+      <%= f.text_field :email, class: "form-control",placeholder: "Email"  %>
+   </div>
+
+   
+   
+
+   $(document).ready(function(){
+         ($('#message')).hide();
+   });
+
+   </script>
+  
+
+   <style>
+
+      #message,#message_username{
+         color: red;
+      }
+
+   </style>
+
+   <script type = "text/javascript" >
+
+      $('#register_username').change(function(){
+         var username = ($('#register_username').val());
+         var l = username.length;
+         if (l < 8)
+            $('#message_username').show();
+         else
+            $('#message_username').hide();
+         
+
+      });
+
+   </script>
+
+   <script type = "text/javascript" >
+
+      $('#register_password_confirmation').change(function () {
+            var pass = ($('#register_password').val());
+            var conf = ($('#register_password_confirmation').val());
+            //alert(pass);
+            //alert(conf);
+            if (conf != pass)
+            {
+               $('#message').show();
+               ($('#register_password').val(""));
+               ($('#register_password_confirmation').val(""));
+            }
+            else
+            {
+               $('#message').hide();
+            }
+            
+      });
+
+   </script>

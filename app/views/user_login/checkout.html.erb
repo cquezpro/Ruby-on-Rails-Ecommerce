@@ -1,0 +1,273 @@
+		
+<script>		
+
+		$(document).ready(function(){
+			
+			document.getElementById('paymentdetails').style.display = 'none';
+			document.getElementById('suggestAddress').style.display = 'none';
+
+			$('#address').focus(function()
+			{
+				var id = "<%= session[:userid] %>"
+				
+				var address1 = ""
+				var address2 = ""
+				
+				$.ajax({
+					type: "post",
+	           		dataType: 'json',
+	           		data: {"id": id},
+	           		url: "<%= url_for(:action => 'suggestAddress') %>",
+	           		success: function(result)
+	           		{   
+	           			var data = JSON.stringify(result);
+	           			var content = JSON.parse(data);
+	           			for(var i=0;i<content.length;i++)
+	           			{
+	           				
+	           				address1 = content[i].address1
+	           				address2 = content[i].address2
+	           				
+	           				$('#addr1').empty().append(address1);
+	           				$("#addr1").attr('data-value',address1);
+	           				$('#addr2').empty().append(address2);
+	           				$("#addr2").attr('data-value',address2);
+
+	           			}
+
+	           			$('#suggestAddress').css('display','block');
+	           			$('#suggestAddress').fadeIn();
+	           			var element = ""
+	           			
+	           			$('#addr1').click(function(){
+	           					element = $('#addr1').data('value');
+	           					
+	           					$('#address').val(element);
+	           					$('#suggestAddress').fadeOut();
+	           			})
+	           			$('#addr2').click(function(){
+	           					element = $('#addr2').data('value');
+	           					
+	           					$('#address').val(element);
+	           					$('#suggestAddress').fadeOut();
+	           			})
+	           			
+	        	    }
+	           	})
+
+			})
+								
+		});
+
+		function setAddress()
+		{
+			$('#suggestAddress').fadeOut();
+		}
+
+		
+				
+		function getPaymentDetails()
+		{
+			document.getElementById('paymentdetails').style.display = 'block';
+			document.getElementById('bankdetails').style.display = 'none';
+			
+			$('#details').find('input, textarea, button').attr('readonly', true);
+
+			setOrder();
+
+
+		}
+
+		function getBankDetails()
+		{
+			var value = document.getElementById("paymentmethod");
+			var value1 = value.options[value.selectedIndex].value;
+			
+			if (value1 == 'By Bank')
+				document.getElementById('bankdetails').style.display = 'block';
+			else
+				document.getElementById('bankdetails').style.display = 'none';	
+		}
+
+		function setOrder()
+		{
+			var cart_product = "<%= cookies[:cartpid] %>"
+			var cart_qty = "<%= cookies[:cartdata] %>"
+			var pid = 0;
+			var qty = 0;
+			var price = 0;
+
+			$.ajax({
+				type: "post",
+           		dataType: 'json',
+           		data: {"cart_product": cart_product,"cart_qty": cart_qty},
+           		url: "<%= url_for(:controller => 'purchase_product',:action => 'list_cart_details') %>",
+           		success: function(result)
+           		{   
+           			var data = JSON.stringify(result);
+           			var content = JSON.parse(data);
+           			var total_price = 0
+           			var total_discount = 0
+           			var total_tax = 0
+           			var product_order_details = "";
+
+           			for(var i=0;i<content.length;i++)
+              		{
+              			pid = content[i].product_id
+              			qty = content[i].qty
+              			price = content[i].price
+              			total_price = content[i].totalAmount
+              	        total_discount = content[i].totalDiscount
+              			total_tax = content[i].totalTax
+              			
+              			product_order_details = product_order_details + pid + "-" + qty + "-" + price + "/";
+              		}
+              		var net_amount = total_price - total_discount + total_tax;
+
+              		$('#net_amount').attr('value',net_amount);
+
+              		// setCartData(product_order_details,total_price,total_discount,total_tax,net_amount);
+
+           		}
+           	});
+
+		}
+
+</script>
+
+<style>
+
+div.suggestions {
+    
+	position: absolute;
+	background-color: #fff;
+	width: 50px;
+	height: 25px;
+	z-index: 9;
+	padding: 20px;
+    border: 1px solid black;
+    
+}
+
+</style>
+
+<h1> Delivery Address </h1>
+
+<form action="/user_login/setOrderDelivery">
+
+	<div id="details"> 
+
+		<div class='span4'>
+			<div class='well' id="well" style="margin-top: 2px;">
+				<div class='control-group'>
+					<label class='control-label' for='buyername'>
+						Name</label>
+						<div class='controls'>
+							<input class='span3'  type='text' id='buyername' name='buyername' placeholder='Name' maxlength="35">
+						</div>
+				</div>
+				<div class='control-group'>
+					<label class='control-label' for='pincode'>
+						Pincode</label>
+						<div class='controls'>
+							<input class='span3'  type='number' id='pincode' name='pincode' placeholder='Pincode' maxlength="6">
+						</div>
+				</div>
+				<div class='control-group'>
+					<label class='control-label' for='Address'>
+						Address</label>
+						<div class='controls'>
+						<div >
+							<textarea class='span3' id='address' name='address' placeholder='Address' rows='3' cols='4' maxlength="200"></textarea>
+							<a id="editaddr" onclick="setAddress();"> <img  src="/assets/index.jpeg" style="margin-top: -72px; margin-left: -23px; width: 18px; height: 18px;"/> </a>
+						</div>
+							<div id="suggestAddress" class="suggestions"> 
+								<div id='addr1'> </div>
+								<div id='addr2'> </div> 
+							</div>
+
+						</div>
+				</div>
+				<div class='control-group'>
+					<label class='control-label' for='Country'>
+						Country</label> 
+						<div class='controls'>
+							<input class='span3'  type='text' id='country' name='country' value='India' readonly>
+						</div>
+				</div>
+				<div class='control-group'>
+					<label class='control-label' for='Phone'>
+						Phone No.</label>
+						<div class='controls'>
+							<input class='span3'  type='text' id='phone' name='phone' placeholder='Phone' maxlength="10">
+						</div>
+				</div>
+				<button type='button' class='btn' onclick='getPaymentDetails();'>Save & Continue</button>
+			</div>
+		</div>
+
+	</div>
+
+	<div class="span1"> &nbsp;</div>
+
+
+	<div id="paymentdetails"> 
+		<div class='span4'>
+			<div class='well' id='well'style='margin-top: -20px;'>
+				<div class='control-group'>
+					<labelclass='control-label'>Payment Method</label>
+					<div class='controls'>
+						<select class='span1' id='paymentmethod'
+						name='paymentmethod' style='width: 250px;' onchange='getBankDetails();'>
+						<option value='Cash on Delivery'>Cash on Delivery</option>
+						<option value='By Bank'>By Bank</option>
+						<option value='Debit Card'>Debit Card</option>
+						<option value='VISA'>VISA</option>
+						<option value='PayPal'>PayPal</option>
+						</select>
+					</div>
+				</div>
+
+				<div id="bankdetails">
+					<div class='control-group'>
+						<labelclass='control-label'>Select Bank</label>
+						<div class='controls'>
+							<select class='span1' id='bankname'name='bankname' style='width: 250px;' onchange='getBankDetails();'>
+								<option value='Bank of Baroda'>Bank of Baroda</option>
+								<option value='State Bank of India'>State Bank of India</option>
+								<option value='ICICI'>ICICI</option>
+								<option value='Axis'>Aixs</option>
+								</select>
+						</div>
+					</div>
+					<div class='control-group'>
+						<labelclass='control-label'>A/C No.</label>
+						<div class='controls'>
+							<input class='span3' type='text' id='acno' name='acno' placeholder='Account Number' maxlength="12">
+						</div>
+					</div>
+				</div>
+
+				<% user_id = session[:userid]  %>
+
+				<input type="hidden" name="user_id" value="<%= user_id %>" >
+
+				<input type="hidden" name="net_amount" id="net_amount" >
+
+				<button type='submit' class='btn' >Save & Continue
+				</button>
+
+			</div>
+			
+		</div>
+		
+	</div>
+
+</form>
+
+
+
+
+
+
+

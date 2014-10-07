@@ -1,0 +1,9 @@
+
+<%= link_to("<<Back to list", {:action => 'index'}) %>
+	<h2>Update Subcategory Details</h2>
+
+	<%= form_for(:subcategory, :url => {:action => 'update', 
+		:id => @subcategory.id }) do |f| %>
+		<%= render(:partial => "form", :locals => {:f => f}) %>
+		<%= submit_tag "Update Subcategory", class: "btn btn-default" %>
+	<% end %>
